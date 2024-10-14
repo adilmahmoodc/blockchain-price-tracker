@@ -26,7 +26,8 @@ export class AlertController {
     schema: {
       example: {
         success: true,
-        message: 'Price alert set for Ethereum at 2000 USD (up), email will be sent to user@example.com',
+        message:
+          'Price alert set for Ethereum at 2000 USD (up), email will be sent to user@example.com',
       },
     },
   })
@@ -36,6 +37,11 @@ export class AlertController {
     @Body('email') email: string,
     @Body('direction') direction: 'up' | 'down',
   ) {
-    return await this.alertService.setPriceAlert(chain, price, email, direction);
+    return await this.alertService.setPriceAlert(
+      chain,
+      price,
+      email,
+      direction,
+    );
   }
 }
