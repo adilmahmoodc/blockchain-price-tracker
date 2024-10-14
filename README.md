@@ -26,9 +26,12 @@ Ensure you have the following installed on your system:
 
 Follow these steps to set up and run the project locally:
 
-### 1. Install Dependencies
+### 1. Clone Project
 
-  - yarn install
+```shell
+  git clone <repository-url>
+  cd blockchain-price-tracker
+```
 
 ### 2. Install PostgreSQL
 
@@ -57,17 +60,29 @@ Follow these steps to set up and run the project locally:
 
   **1**. Database Configuration:
     Add your own PostgreSQL credentials in the .env file. Specifically, you'll need to update the following:
+  ```shell
     - DB_USERNAME: Your PostgreSQL username (default is often postgres).
     - DB_PASSWORD: The password for your PostgreSQL user.
     - DB_HOST: The host where your database is running (typically localhost for local development).
     - DB_DATABASE: The name of the database, which should be price_tracker (or any name you have chosen).
+    - SMTP_HOST: host for email sevice
+    - SMTP_PORT: port for email sevice
+  ```
 
   **2**. Moralis API Key:
     A free Moralis API key is already included in the .env.example file for fetching cryptocurrency data, but you can change it if you prefer to use your own API key. Simply sign up for a Moralis account and get your API key, then update the following line in the .env file.
 
-### 5. Running the Application
+### 5. Docker Setup
 
-  - yarn run start:dev  \\ This command starts the application in development mode.
+Install [Docker](https://docs.docker.com/) for [Mac](https://docs.docker.com/desktop/install/mac-install/) or [Windows](https://docs.docker.com/desktop/install/windows-install/), then go to the project folder and run:
+
+```shell
+docker compose build
+```
+
+```shell
+docker compose up
+```
 
 ### 6. Accessing the Application
 

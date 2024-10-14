@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: blockchain-price-tracker
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE=${DB_DATABASE}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_SECURE=${SMTP_SECURE}
+      - MORALIS_API_KEY=${MORALIS_API_KEY}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+      - maildev
+    volumes:
+      - .:/app
+    command: >
+          sh -c "yarn install && npm run start:nest"
+
+  db:
+    image: postgres:13
+    container_name: price-tracker-db
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  maildev:
+    image: djfarrelly/maildev
+    container_name: price-tracker-maildev
+    ports:
+      - "1080:1080"
+      - "1025:1025"
+
+volumes:
+  postgres_data:

@@ -10,7 +10,11 @@ dotenv.config();
  * @param email - The recipient email for the alert.
  * @param price - The current price of the blockchain.
  */
-export const sendPriceAlertEmail = async (chain: string, email: string, price: number): Promise<void> => {
+export const sendPriceAlertEmail = async (
+  chain: string,
+  email: string,
+  price: number,
+): Promise<void> => {
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT),
@@ -25,5 +29,7 @@ export const sendPriceAlertEmail = async (chain: string, email: string, price: n
   };
 
   await transporter.sendMail(mailOptions);
-  console.log(`Price alert email sent for ${chain} at ${price} USD to ${email}`);
+  console.log(
+    `Price alert email sent for ${chain} at ${price} USD to ${email}`,
+  );
 };

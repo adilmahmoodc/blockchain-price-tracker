@@ -5,7 +5,7 @@ import { Cron } from '@nestjs/schedule';
 import { Price } from '../../entities/price.entity';
 import { Alert } from '../../entities/alert.entity';
 import { PriceFetcherService } from '../shared/price-fetcher.service';
-import { sendPriceAlertEmail } from '../../common/email.service'; 
+import { sendPriceAlertEmail } from '../../common/email.service';
 import { getApiUrlForChain } from 'src/utils/chain.utils';
 
 @Injectable()
@@ -29,13 +29,18 @@ export class AlertService {
     chain: string,
     targetPrice: number,
     email: string,
-    direction: 'up' | 'down'
+    direction: 'up' | 'down',
   ): Promise<{ success: boolean; message: string }> {
-
-    const currentPrice = await this.priceFetcherService.fetchPrice(chain, getApiUrlForChain(chain));
+    const currentPrice = await this.priceFetcherService.fetchPrice(
+      chain,
+      getApiUrlForChain(chain),
+    );
 
     if (currentPrice === null) {
-      return { success: false, message: 'Failed to fetch current price for the specified chain' };
+      return {
+        success: false,
+        message: 'Failed to fetch current price for the specified chain',
+      };
     }
 
     if (direction === 'up' && targetPrice <= currentPrice) {
@@ -58,9 +63,14 @@ export class AlertService {
 
     await this.alertRepository.save(alert);
 
-    console.log(`Price alert set for ${chain} at ${targetPrice} USD (${direction}), email will be sent to ${email}`);
+    console.log(
+      `Price alert set for ${chain} at ${targetPrice} USD (${direction}), email will be sent to ${email}`,
+    );
 
-    return { success: true, message: `Price alert set for ${chain} at ${targetPrice} USD (${direction}), notification will be sent to ${email}` };
+    return {
+      success: true,
+      message: `Price alert set for ${chain} at ${targetPrice} USD (${direction}), notification will be sent to ${email}`,
+    };
   }
 
   async checkPriceIncrease(chain: string): Promise<void> {
@@ -78,15 +88,25 @@ export class AlertService {
       return;
     }
 
-    const currentPrice = await this.priceFetcherService.fetchPrice(chain, getApiUrlForChain(chain));
+    const currentPrice = await this.priceFetcherService.fetchPrice(
+      chain,
+      getApiUrlForChain(chain),
+    );
 
     if (currentPrice !== null) {
-      const percentageIncrease = ((currentPrice - lastHourPrice.price) / lastHourPrice.price) * 100;
+      const percentageIncrease =
+        ((currentPrice - lastHourPrice.price) / lastHourPrice.price) * 100;
       console.log(`Price increase for ${chain}: ${percentageIncrease}%`);
 
       if (percentageIncrease > 3) {
-        console.log(`${chain} price increased by more than 3%, sending email...`);
-        await sendPriceAlertEmail(chain, 'hyperhire_assignment@hyperhire.in', currentPrice);
+        console.log(
+          `${chain} price increased by more than 3%, sending email...`,
+        );
+        await sendPriceAlertEmail(
+          chain,
+          'hyperhire_assignment@hyperhire.in',
+          currentPrice,
+        );
       }
     }
   }
@@ -94,19 +114,29 @@ export class AlertService {
   @Cron('*/1 * * * *')
   async checkPriceAlerts(): Promise<void> {
     const alerts = await this.alertRepository.find();
-    if(alerts.length  === 0) return;
+    if (alerts.length === 0) return;
 
     for (const alert of alerts) {
-      const currentPrice = await this.priceFetcherService.fetchPrice(alert.chain, getApiUrlForChain(alert.chain));
-      console.log("currentPrice : ", currentPrice);
+      const currentPrice = await this.priceFetcherService.fetchPrice(
+        alert.chain,
+        getApiUrlForChain(alert.chain),
+      );
+      console.log('currentPrice : ', currentPrice);
 
       if (currentPrice !== null) {
         if (alert.direction === 'up' && currentPrice >= alert.targetPrice) {
-          console.log(`Price alert triggered (up) for ${alert.chain} at ${alert.targetPrice} USD, current price: ${currentPrice} USD`);
+          console.log(
+            `Price alert triggered (up) for ${alert.chain} at ${alert.targetPrice} USD, current price: ${currentPrice} USD`,
+          );
           await sendPriceAlertEmail(alert.chain, alert.email, currentPrice);
           await this.alertRepository.delete(alert.id);
-        } else if (alert.direction === 'down' && currentPrice <= alert.targetPrice) {
-          console.log(`Price alert triggered (down) for ${alert.chain} at ${alert.targetPrice} USD, current price: ${currentPrice} USD`);
+        } else if (
+          alert.direction === 'down' &&
+          currentPrice <= alert.targetPrice
+        ) {
+          console.log(
+            `Price alert triggered (down) for ${alert.chain} at ${alert.targetPrice} USD, current price: ${currentPrice} USD`,
+          );
           await sendPriceAlertEmail(alert.chain, alert.email, currentPrice);
           await this.alertRepository.delete(alert.id);
         }
